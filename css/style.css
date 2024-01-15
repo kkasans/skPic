@@ -137,10 +137,10 @@ img:hover {
     width: 100%;
 }
 
-#wrap header .innerHeader .nav ul.nav-list>li>a:hover,
+/* #wrap header .innerHeader .nav ul.nav-list>li>a:hover,
 #wrap header .innerHeader .nav ul.nav-list>li>a:focus {
     color: #E0002B;
-}
+} */
 
 #wrap header .headerBar {
     width: 100%;
