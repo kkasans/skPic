@@ -1,12 +1,12 @@
 $(function () {
-    // ======================= logo, btnTop 클릭시 최상단
+    // ====================================== logo, btnTop 클릭시 최상단
     $(".logo, .btnTop").on("click", () => {
         $("html,body").stop().animate({
             scrollTop: 0
         }, 400); // 0.4초
     });
 
-    // ======================= 스크롤 500px 이상 내릴때 btnTop 나타남 
+    // ====================================== 스크롤 500px 이상 내릴때 btnTop 나타남 
     $(window).scroll(() => {
         if ($(this).scrollTop() > 500) {
             $(".btnTop").fadeIn();
@@ -14,24 +14,28 @@ $(function () {
             $(".btnTop").fadeOut();
         }
     });
-    // ========================== header menu
+
+
+
+    // ====================================== header menu 
     // 메인 메뉴가 클릭되었는지 여부를 추적하는 새로운 변수 추가
     let isMainMenuClicked = false;
 
-
-    function updateHeaderStyles(isHovered, isScrolled) {
+    function updateStyles(isScrolled, isHovered = false) {
         let imgSrc = isHovered || isScrolled ? './images/skPic-logo-or.png' : './images/skPic-logo.svg';
 
         let headerStyles = {
-            'height': isHovered || isScrolled ? '110px' : '',
+            'height': isHovered || isScrolled || isMainMenuClicked ? '110px' : '',
             'width': '100%',
-            'background-color': isScrolled ? 'white' : (isHovered ? 'white' : ''),
-            'border-bottom': isHovered || isScrolled ? '1px solid #ddd' : ''
+            'background-color': isScrolled || isMainMenuClicked ? 'white' : (isHovered ? 'white' : ''),
+            'border-bottom': isHovered || isScrolled || isMainMenuClicked ? '1px solid #ddd' : ''
         };
 
         let linkStyles = {
-            'color': isHovered || isScrolled ? '#000' : '',
+            'color': isHovered || isScrolled || isMainMenuClicked ? '#000' : '',
         };
+
+
 
         $("header img").attr('src', imgSrc);
         $("header").css(headerStyles);
@@ -39,9 +43,10 @@ $(function () {
         $(".nav-list>li>a, .submenu>li>a").css(linkStyles);
     }
 
-
     $(function () {
-        // 스크롤 이벤트
+        // 변수 추가
+        let isHovered = false;
+
         $(window).scroll(() => {
             let scrollTop = $(window).scrollTop();
             let isScrolled = scrollTop > 110;
@@ -51,11 +56,10 @@ $(function () {
                 'width': '100%',
                 'background-color': isScrolled ? 'white' : '',
                 'border-bottom': isScrolled ? '1px solid #ddd' : ''
-
             };
 
             let linkStyles = {
-                'color': isScrolled ? '#000' : ''
+                'color': isHovered || isScrolled || isMainMenuClicked ? '#000' : '',
             };
 
             $("header img").attr('src', isScrolled ? './images/skPic-logo-or.png' : './images/skPic-logo.svg');
@@ -64,67 +68,79 @@ $(function () {
                 'box-shadow': isScrolled ? '0 5px 5px rgba(0, 0, 0, 0.1)' : ''
             });
 
-            updateHeaderStyles(false, isScrolled); // isHovered를 false로 전달
+            updateStyles(isScrolled, isHovered);
         });
 
-        // 호버 이벤트
+        // 대메뉴에 마우스 오버 및 아웃 이벤트 처리
         $("ul#menu, .innerHeader").hover(
             () => {
                 $(".submenu, .smenu_bar").stop().slideDown('fast');
-                updateHeaderStyles(true, false); // isHovered를 true로 전달
+                isHovered = true; // 마우스가 올라갔음을 표시
+                updateStyles($(window).scrollTop() > 110, isHovered);
             },
             () => {
                 $(".submenu, .smenu_bar").stop().fadeOut('fast');
-                updateHeaderStyles(false, $(window).scrollTop() > 110); // 스크롤 여부 전달
+                isHovered = false; // 마우스가 나갔음을 표시
+                updateStyles($(window).scrollTop() > 110, isHovered);
             }
         );
 
-        // slicknav 플러그인 적용
+        // nav-list의 a에 hover 했을 때 a.active 색 나오도록 수정
+        $(".nav-list>li").hover(
+            function () {
+                $(this).find(">a").addClass("active");
+            },
+            function () {
+                $(this).find(">a").removeClass("active");
+            }
+        );
+
         $("ul#menu").slicknav();
-
-
-
-
     });
 
 
+    $(".submenu>li>a").mouseenter(function () {
+        $(this).addClass("submenu-hovered");
+        $(this).css({
+            "color": "#999"
+        });
+    });
 
-
-
-    // ======================= 스크롤 이동에 따른 header 스타일 변화 
+    $(".submenu>li>a").mouseleave(function () {
+        $(this).removeClass("submenu-hovered");
+        $(this).css({
+            "color": ""
+        });
+    });
 
     $(window).scroll(updateStyleOnScroll);
 
     function updateStyleOnScroll() {
-        // 스크롤위치 가져옴
         let scrollTop = $(window).scrollTop();
-        // 스크롤 높이 설정 110px
         let isScrolled = scrollTop > 110;
-        // 스타일 정의
+
         let headerStyles = {
             'height': isScrolled ? '110px' : '',
-            'width': '100%', // 가로 항상 100% 
+            'width': '100%',
             'background-color': isScrolled ? '#fff' : '',
             'border-bottom': isScrolled ? '1px solid #ddd' : ''
         };
+
         let linkStyles = {
             'color': isScrolled ? '#000' : ''
         };
-        // 이미지 소스와 그림자 스타일 
+
         $("header img").attr('src', isScrolled ? './images/skPic-logo-or.png' : './images/skPic-logo.svg');
         $("header").css({
             ...headerStyles,
             'box-shadow': isScrolled ? '0 5px 5px rgba(0, 0, 0, 0.1)' : ''
         });
 
-        // 다른 스타일 업데이트 함수 호출
-        updateHeaderStyles(isScrolled);
+        updateStyles(isScrolled);
     }
 
 
-
-
-    // ======================= 제품 아코디언
+    // ====================================== 제품 아코디언
     let options = $(".pd_list .option");
     let currentIndex = 0;
 
@@ -180,11 +196,15 @@ $(function () {
         });
 
     }
+
+
+
     // .each() - 모든 요소에 반복 작업 수행 
 
 
 
-    // ======================= tab
+    // ====================================== tab
+
     $(".inner_bbs li").click(function () {
         let $this = $(this);
         let index = $this.index();
@@ -232,7 +252,7 @@ $(function () {
 // ex - let obj2 = {...obj1} // obj1 = {a:1, b:2};
 
 
-// ======================= career news slide 
+// ====================================== career news slide 
 // DOMContentLoaded 모든 HTML 문서가 로드되었을때 실행하라는 이벤트
 document.addEventListener("DOMContentLoaded", function () {
     // 슬라이드
@@ -316,17 +336,8 @@ document.addEventListener("DOMContentLoaded", function () {
 // 인덱스를 1만큼 감소시키면서 최소값은 0으로 제한하는 역할
 
 
-// ======================= wow.js
-new WOW().init();
 
-// =======================나눔스퀘어
-WebFont.load({
-    google: {
-        families: ['Nanum Square:regular,bold']
-    }
-});
-
-// ======================= 관련사이트 함수 
+// ====================================== 관련사이트 함수 
 
 // 선택된 사이트 열기 함수
 function Site() {
@@ -345,36 +356,3 @@ function Site() {
         window.open(selectedSite, "_blank");
     }
 }
-
-
-// function Site() {
-//     // 선택된 옵션을 값(value) 가져옴
-//     // .value; -> id로 된 familySites를 찾아 value값 가져옴
-//     let selectedValue = document.getElementById("familySites").value;
-//     // selectedValue 선택된 값에 따른 URL 변경
-//     switch (selectedValue) {
-//         case "SK":
-//             window.open("https://www.sk.com", "_blank");
-//             break;
-//         case "SKC":
-//             window.open("https://www.skc.co.kr", "_blank");
-//             break;
-//         case "SKN":
-//             window.open("http://www.sknexilis.com/kr/", "_blank");
-//             break;
-//         case "SKEN":
-//             window.open("https://www.skenpulse.com/", "_blank");
-//             break;
-//         case "SKPucore":
-//             window.open("https://www.skpucore.com/", "_blank");
-//             break;
-// swich문은 제어문이며, 특정 변수 값을 여러가지(case)와 비교하여
-// 해당하는 경우에 실행하는 블록을 지정 
-//  window.open - 새창 열때 사용되는 자바스크립트 메서드
-// window.location.href
-// 자바스크립트에서 현재 창의URL을 나타내는 속성임
-// 브라우저가 새로운 URL로 이동됨
-// break; - 자바스크립트 제어문 
-// : switch 블록을 즉시 종료하고 다음 명령문으로 이동 
-//     }
-// }
